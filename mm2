@@ -1,4 +1,4 @@
--- MM2 Egg Autofarm + GUI с брендом scriptixrbx (для Delta Executor)
+-- MM2 Egg Autofarm + GUI с scriptixrbx + NoClip при фарме
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -10,7 +10,7 @@ local speed = 60
 local eggCheckDelay = 1
 local isFarming = false
 
--- Создание GUI
+-- GUI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 ScreenGui.Name = "ScriptixRBX_Autofarm"
 ScreenGui.ResetOnSpawn = false
@@ -28,13 +28,14 @@ ToggleButton.BorderSizePixel = 0
 ToggleButton.BackgroundTransparency = 0.2
 ToggleButton.AutoButtonColor = true
 
+-- Переключение фарма
 ToggleButton.MouseButton1Click:Connect(function()
     isFarming = not isFarming
     ToggleButton.Text = isFarming and "scriptixrbx | Фарм: ВКЛ" or "scriptixrbx | Фарм: ВЫКЛ"
     ToggleButton.BackgroundColor3 = isFarming and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(0, 170, 255)
 end)
 
--- Поиск ближайшего яйца
+-- Поиск яйца
 local function getNearestEgg()
     local closestEgg, closestDistance = nil, math.huge
     for _, obj in pairs(workspace:GetDescendants()) do
@@ -51,7 +52,18 @@ local function getNearestEgg()
     return closestEgg
 end
 
--- Плавный полёт
+-- NoClip обработка
+RunService.Stepped:Connect(function()
+    if isFarming then
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") and part.CanCollide == true then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- Полёт к яйцу
 local function flyTo(targetPosition)
     local direction = (targetPosition - humanoidRootPart.Position).Unit
     local connection
@@ -72,7 +84,7 @@ local function flyTo(targetPosition)
     end)
 end
 
--- Главный цикл
+-- Цикл фарма
 task.spawn(function()
     while true do
         if isFarming then
