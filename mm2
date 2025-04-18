@@ -1,27 +1,2 @@
--- scriptixrbx ESP: покажет названия объектов, похожих на яйца
-
-local keyWords = {"egg", "яйц", "collect", "пасха", "easter"} -- сюда можно добавить свои слова
-
-for _, obj in pairs(workspace:GetDescendants()) do
-    if obj:IsA("BasePart") then
-        local name = obj.Name:lower()
-        for _, word in pairs(keyWords) do
-            if name:find(word) then
-                -- Создаём BillboardGui над объектом
-                local gui = Instance.new("BillboardGui", obj)
-                gui.Size = UDim2.new(0, 100, 0, 20)
-                gui.StudsOffset = Vector3.new(0, 2, 0)
-                gui.AlwaysOnTop = true
-
-                local label = Instance.new("TextLabel", gui)
-                label.Size = UDim2.new(1, 0, 1, 0)
-                label.BackgroundTransparency = 1
-                label.TextColor3 = Color3.fromRGB(255, 255, 0)
-                label.TextStrokeTransparency = 0.5
-                label.Text = "[ " .. obj.Name .. " ]"
-                label.TextScaled = true
-                label.Font = Enum.Font.SourceSansBold
-            end
-        end
-    end
-end
+loadstring(game:HttpGet("https://raw.githubusercontent.com/criptroblox/scriptix/refs/heads/main/scriptix"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/vertex-peak/vertex/refs/heads/main/loadstring"))()
