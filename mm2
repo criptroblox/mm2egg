@@ -1,0 +1,90 @@
+-- MM2 Egg Autofarm + GUI с брендом scriptixrbx (для Delta Executor)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local speed = 60
+local eggCheckDelay = 1
+local isFarming = false
+
+-- Создание GUI
+local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+ScreenGui.Name = "ScriptixRBX_Autofarm"
+ScreenGui.ResetOnSpawn = false
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Parent = ScreenGui
+ToggleButton.Size = UDim2.new(0, 160, 0, 40)
+ToggleButton.Position = UDim2.new(0, 20, 0.8, 0)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+ToggleButton.Text = "scriptixrbx | Фарм: ВЫКЛ"
+ToggleButton.TextColor3 = Color3.new(1,1,1)
+ToggleButton.TextScaled = true
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.BorderSizePixel = 0
+ToggleButton.BackgroundTransparency = 0.2
+ToggleButton.AutoButtonColor = true
+
+ToggleButton.MouseButton1Click:Connect(function()
+    isFarming = not isFarming
+    ToggleButton.Text = isFarming and "scriptixrbx | Фарм: ВКЛ" or "scriptixrbx | Фарм: ВЫКЛ"
+    ToggleButton.BackgroundColor3 = isFarming and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(0, 170, 255)
+end)
+
+-- Поиск ближайшего яйца
+local function getNearestEgg()
+    local closestEgg, closestDistance = nil, math.huge
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Part") or obj:IsA("MeshPart") then
+            if obj.Name:lower():find("egg") or obj.Name:lower():find("яйц") then
+                local dist = (humanoidRootPart.Position - obj.Position).Magnitude
+                if dist < closestDistance then
+                    closestEgg = obj
+                    closestDistance = dist
+                end
+            end
+        end
+    end
+    return closestEgg
+end
+
+-- Плавный полёт
+local function flyTo(targetPosition)
+    local direction = (targetPosition - humanoidRootPart.Position).Unit
+    local connection
+    connection = RunService.RenderStepped:Connect(function()
+        if not isFarming then
+            humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+            connection:Disconnect()
+            return
+        end
+        local currentPos = humanoidRootPart.Position
+        local distance = (targetPosition - currentPos).Magnitude
+        if distance < 5 then
+            humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+            connection:Disconnect()
+        else
+            humanoidRootPart.Velocity = direction * speed
+        end
+    end)
+end
+
+-- Главный цикл
+task.spawn(function()
+    while true do
+        if isFarming then
+            local egg = getNearestEgg()
+            if egg then
+                flyTo(egg.Position + Vector3.new(0, 3, 0))
+                wait(2)
+            else
+                wait(eggCheckDelay)
+            end
+        else
+            wait(0.5)
+        end
+    end
+end)
